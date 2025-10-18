@@ -3,13 +3,10 @@
 import pygame
 
 pygame.init()
-info = pygame.display.Info()
 WIDTH = 1000
-HEIGHT = 800
-
-
-screen = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("Catur Python")
+HEIGHT = 900
+screen = pygame.display.set_mode([WIDTH, HEIGHT])
+pygame.display.set_caption('Two-Player Pygame Chess!')
 font = pygame.font.Font('freesansbold.ttf', 20)
 medium_font = pygame.font.Font('freesansbold.ttf', 40)
 big_font = pygame.font.Font('freesansbold.ttf', 50)
@@ -251,41 +248,29 @@ def check_rook(position, color):
 # check valid pawn moves
 def check_pawn(position, color):
     moves_list = []
-    x, y = position
-
     if color == 'white':
-        if (x, y + 1) not in white_locations and (x, y + 1) not in black_locations and y < 7:
-            moves_list.append((x, y + 1))
-            if y == 1 and (x, y + 2) not in white_locations and (x, y + 2) not in black_locations:
-                moves_list.append((x, y + 2))
-        if (x + 1, y + 1) in black_locations:
-            moves_list.append((x + 1, y + 1))
-        if (x - 1, y + 1) in black_locations:
-            moves_list.append((x - 1, y + 1))
-
+        if (position[0], position[1] + 1) not in white_locations and \
+                (position[0], position[1] + 1) not in black_locations and position[1] < 7:
+            moves_list.append((position[0], position[1] + 1))
+        if (position[0], position[1] + 2) not in white_locations and \
+                (position[0], position[1] + 2) not in black_locations and position[1] == 1:
+            moves_list.append((position[0], position[1] + 2))
+        if (position[0] + 1, position[1] + 1) in black_locations:
+            moves_list.append((position[0] + 1, position[1] + 1))
+        if (position[0] - 1, position[1] + 1) in black_locations:
+            moves_list.append((position[0] - 1, position[1] + 1))
     else:
-        if (x, y - 1) not in white_locations and (x, y - 1) not in black_locations and y > 0:
-            moves_list.append((x, y - 1))
-            if y == 6 and (x, y - 2) not in white_locations and (x, y - 2) not in black_locations:
-                moves_list.append((x, y - 2))
-        if (x + 1, y - 1) in white_locations:
-            moves_list.append((x + 1, y - 1))
-        if (x - 1, y - 1) in white_locations:
-            moves_list.append((x - 1, y - 1))
-
+        if (position[0], position[1] - 1) not in white_locations and \
+                (position[0], position[1] - 1) not in black_locations and position[1] > 0:
+            moves_list.append((position[0], position[1] - 1))
+        if (position[0], position[1] - 2) not in white_locations and \
+                (position[0], position[1] - 2) not in black_locations and position[1] == 6:
+            moves_list.append((position[0], position[1] - 2))
+        if (position[0] + 1, position[1] - 1) in white_locations:
+            moves_list.append((position[0] + 1, position[1] - 1))
+        if (position[0] - 1, position[1] - 1) in white_locations:
+            moves_list.append((position[0] - 1, position[1] - 1))
     return moves_list
-
-
-def check_pawn_promotion():
-    
-    for i in range(len(white_pieces)):
-        if white_pieces[i] == 'pawn' and white_locations[i][1] == 7:
-            white_pieces[i] = 'queen'
-
-    for i in range(len(black_pieces)):
-        if black_pieces[i] == 'pawn' and black_locations[i][1] == 0:
-            black_pieces[i] = 'queen'
-
 
 
 # check valid knight moves
@@ -304,6 +289,7 @@ def check_knight(position, color):
         if target not in friends_list and 0 <= target[0] <= 7 and 0 <= target[1] <= 7:
             moves_list.append(target)
     return moves_list
+
 
 # check for valid moves for just selected piece
 def check_valid_moves():
@@ -383,18 +369,14 @@ while run:
     if selection != 100:
         valid_moves = check_valid_moves()
         draw_valid(valid_moves)
-       # event handling
+    # event handling
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             run = False
-
-        # klik kiri
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1 and not game_over:
             x_coord = event.pos[0] // 100
             y_coord = event.pos[1] // 100
             click_coords = (x_coord, y_coord)
-
-            # === GILIRAN PUTIH ===
             if turn_step <= 1:
                 if click_coords == (8, 8) or click_coords == (9, 8):
                     winner = 'black'
@@ -411,20 +393,11 @@ while run:
                             winner = 'white'
                         black_pieces.pop(black_piece)
                         black_locations.pop(black_piece)
-
-                    # update opsi langkah
                     black_options = check_options(black_pieces, black_locations, 'black')
                     white_options = check_options(white_pieces, white_locations, 'white')
                     turn_step = 2
                     selection = 100
                     valid_moves = []
-
-                    # pawn promotion putih (langsung saat pion sampai ujung)
-                    for i, piece in enumerate(white_pieces):
-                        if piece == 'pawn' and white_locations[i][1] == 7:
-                            white_pieces[i] = 'queen'
-
-            # === GILIRAN HITAM ===
             if turn_step > 1:
                 if click_coords == (8, 8) or click_coords == (9, 8):
                     winner = 'white'
@@ -441,20 +414,11 @@ while run:
                             winner = 'black'
                         white_pieces.pop(white_piece)
                         white_locations.pop(white_piece)
-
-                    # update opsi langkah
                     black_options = check_options(black_pieces, black_locations, 'black')
                     white_options = check_options(white_pieces, white_locations, 'white')
                     turn_step = 0
                     selection = 100
                     valid_moves = []
-
-                    # pawn promotion hitam (langsung saat pion sampai ujung)
-                    for i, piece in enumerate(black_pieces):
-                        if piece == 'pawn' and black_locations[i][1] == 0:
-                            black_pieces[i] = 'queen'
-
-        # tekan ENTER untuk restart
         if event.type == pygame.KEYDOWN and game_over:
             if event.key == pygame.K_RETURN:
                 game_over = False
@@ -475,11 +439,9 @@ while run:
                 black_options = check_options(black_pieces, black_locations, 'black')
                 white_options = check_options(white_pieces, white_locations, 'white')
 
-    # kalau sudah ada pemenang
     if winner != '':
         game_over = True
         draw_game_over()
-
 
     pygame.display.flip()
 pygame.quit()
